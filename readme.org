@@ -1,3 +1,3 @@
 #+title: Fabric Prompts for gptel
 
-[fabric](https://github.com/danielmiessler/fabric) crowd sources prompts, gptel is a versatile LLM client for emacs. I wanted fabric prompts to be usable via gptel.
+[[https://github.com/danielmiessler/fabric][fabric]] crowd sources prompts, gptel is a versatile LLM client for emacs. I wanted fabric prompts to be usable via gptel.
