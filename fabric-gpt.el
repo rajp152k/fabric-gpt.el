@@ -77,5 +77,5 @@
     (gptel-send)))
 
 
-(provide 'fabric-gptel)
+(provide 'fabric-gpt.el)
 ;;; fabric-gpt.el ends here
