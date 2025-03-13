@@ -4,7 +4,45 @@
 
 * Overview
  - pickup the fabric patterns subdirectory via a no-cone sparse checkout
- - offer completing reads for patterns that have a system prompt available
-   - a pattern populator filters out directories that do not have a system.md
- - a completing read functionality then allows to hit gptel-send with the selected pattern, without altering your existing pattern
+ - filter patterns that have a system prompt available based on a "system.md exists" predicate
+ - a completing read then allows to hit gptel-send with the selected pattern, without altering your existing custom gptel-message
 
+* Installation
+** Doom Emacs
+
+In your packages.el, after your gptel fetch:
+#+begin_src elisp
+(package! fabric-gpt.el
+  :recipe (:host github :repo "/rajp152k/fabric-gpt.el"))
+#+end_src
+
+In your config.el, after your gptel config:
+#+begin_src elisp
+(use-package! fabric-gpt.el
+  :after gptel
+  :config
+  (fabric-gpt.el-bootstrap))
+#+end_src
+
+* Usage
+** fabric-gpt.el-send
+
+This is the primary exposure for utilizing fabric patterns.
+
+I would recommend you bind =(fabric-gptel-send)= to something handy, I use "leader i g f f" as it is mnemonically aligned with what gptel exposes via "leader i g [hsm]"
+
+Upon invocation, a completing read will ask for the desired pattern (with all the bells and whistles of your favourite completion engine (I'm using vertico))
+
+** Syncing patterns
+
+I bind =(fabric-gpt.el-sync-patterns)= to "leader i g f s" to fetch any new patterns from the fabric upstream
+
+These are pulled into your ".config/doom"
+
+* Close Future
+ - better documentation
+ - youtube tutorial
+ - testing and polishing the edges
+* Contributing
+ - suggestions, ideas, bug reports, PRs welcome
+ - I do need to refine this a lot

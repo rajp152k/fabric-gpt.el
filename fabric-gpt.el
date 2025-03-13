@@ -12,13 +12,15 @@
 ;;
 ;; This file is not part of GNU Emacs.
 
-(defvar fabric-gptel--remote-url  "https://github.com/danielmiessler/fabric")
-(defvar fabric-gptel--patterns-subdirectory "/patterns")
-(defvar fabric-gptel--patterns-path "fabric/patterns")
-(defvar fabric-gptel--patterns nil)
+(defvar fabric-gpt.el--remote-url  "https://github.com/danielmiessler/fabric")
+(defvar fabric-gpt.el--patterns-subdirectory "/patterns")
+(defvar fabric-gpt.el--patterns-path "fabric/patterns")
+(defvar fabric-gpt.el--patterns nil)
 
-(defun fabric-gptel-sparse-checkout-subdir (repo-url path branch)
-  (let* ((repo-name (file-name-nondirectory (file-name-sans-extension repo-url)))
+(defun fabric-gpt.el-sparse-checkout-subdir (repo-url path branch)
+  "sparse pull fabric patterns"
+  (let* (
+         (repo-name (file-name-nondirectory (file-name-sans-extension repo-url)))
          (repo-exists (file-directory-p repo-name)))
     (if (not repo-exists)
         (progn
@@ -47,35 +49,33 @@
         (progress-reporter-update reporter 4)
         (message "Sparse pulled patterns for %s on branch %s" repo-name branch)))))
 
-;; (fabric-gptel-sparse-checkout-subdir fabric-gptel--remote-url fabric-gptel--patterns-subdirectory "main")
 
-
-(defun fabric-gptel-populate-patterns ()
+(defun fabric-gpt.el-populate-patterns ()
   "filter out invalid directories"
-  (setq fabric-gptel--patterns (cl-remove-if-not
+  (setq fabric-gpt.el--patterns (cl-remove-if-not
                                 (lambda (pattern)
-                                  (f-exists-p (format "%s/%s/system.md" fabric-gptel--patterns-path pattern)))
-                                (directory-files fabric-gptel--patterns-path nil "^[^.]" t))))
+                                  (f-exists-p (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern)))
+                                (directory-files fabric-gpt.el--patterns-path nil "^[^.]" t))))
 
-;; (fabric-gptel-populate-patterns)
 
-(defun fabric-gptel-yield-prompt ()
-  (interactive)
-  (let ((pattern (completing-read "fabric-patterns: " fabric-gptel--patterns)))
-    (with-temp-buffer (insert-file-contents (format "%s/%s/system.md" fabric-gptel--patterns-path pattern))
+(defun fabric-gpt.el-yield-prompt ()
+  "completing read fabric patterns"
+  (let ((pattern (completing-read "fabric-patterns: " fabric-gpt.el--patterns)))
+    (with-temp-buffer (insert-file-contents (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern))
                       (buffer-string))))
 
-(defun fabric-gptel-bootstrap ()
-  (fabric-gptel-sparse-checkout-subdir fabric-gptel--remote-url fabric-gptel--patterns-subdirectory "main")
-  (fabric-gptel-populate-patterns))
-
-;; final usage
-(defun fabric-gptel-send ()
+(defun fabric-gpt.el-sync-patterns ()
+  "sparse pull patterns and populate cache"
   (interactive)
-  (let ((gptel--system-message (fabric-gptel-yield-prompt)))
+  (fabric-gpt.el-sparse-checkout-subdir fabric-gpt.el--remote-url fabric-gpt.el--patterns-subdirectory "main")
+  (fabric-gpt.el-populate-patterns))
+
+(defun fabric-gpt.el-send ()
+  "dispatch pattern for context preceding the cursor with the selected pattern"
+  (interactive)
+  (let ((gptel--system-message (fabric-gpt.el-yield-prompt)))
     (insert "\n\n")
     (gptel-send)))
-
 
 (provide 'fabric-gpt.el)
 ;;; fabric-gpt.el ends here
