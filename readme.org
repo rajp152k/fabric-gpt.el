@@ -6,3 +6,10 @@ Initial Expectations:
 
  - pass context via buffers, selections, groups of files, etc
  - pickup prompts via a helm like search
+
+
+* Thoughts
+
+ - can pickup the patterns directory from fabric into a local cache with timely checks for updates
+   - https://askubuntu.com/questions/460885/how-to-clone-only-some-directories-from-a-git-repository
+   - https://stackoverflow.com/questions/600079/how-do-i-clone-a-subdirectory-only-of-a-git-repository
