@@ -6,18 +6,11 @@
 ;; Maintainer: Raj Patil <rajp152k@gmail.com>
 ;; Created: March 12, 2025
 ;; Modified: March 12, 2025
-;; Version: 0.0.1
-;; Keywords: abbrev bib c calendar comm convenience data docs emulations extensions faces files frames games hardware help hypermedia i18n internal languages lisp local maint mail matching mouse multimedia news outlines processes terminals tex text tools unix vc wp
-;; Homepage: https://github.com/rp152k/fabric-gpt.el
+;; Version: 1.0.0
+;; Homepage: https://github.com/rajp152k/fabric-gpt.el
 ;; Package-Requires: ((emacs "24.3"))
 ;;
 ;; This file is not part of GNU Emacs.
-;;
-;;; Commentary:
-;;
-;;  Description
-;;
-;;; Code:
 
 (defvar fabric-gptel--remote-url  "https://github.com/danielmiessler/fabric")
 (defvar fabric-gptel--patterns-subdirectory "/patterns")
@@ -56,6 +49,7 @@
 
 ;; (fabric-gptel-sparse-checkout-subdir fabric-gptel--remote-url fabric-gptel--patterns-subdirectory "main")
 
+
 (defun fabric-gptel-populate-patterns ()
   "filter out invalid directories"
   (setq fabric-gptel--patterns (cl-remove-if-not
@@ -63,7 +57,7 @@
                                   (f-exists-p (format "%s/%s/system.md" fabric-gptel--patterns-path pattern)))
                                 (directory-files fabric-gptel--patterns-path nil "^[^.]" t))))
 
-(fabric-gptel-populate-patterns)
+;; (fabric-gptel-populate-patterns)
 
 (defun fabric-gptel-yield-prompt ()
   (interactive)
@@ -71,8 +65,17 @@
     (with-temp-buffer (insert-file-contents (format "%s/%s/system.md" fabric-gptel--patterns-path pattern))
                       (buffer-string))))
 
+(defun fabric-gptel-bootstrap ()
+  (fabric-gptel-sparse-checkout-subdir fabric-gptel--remote-url fabric-gptel--patterns-subdirectory "main")
+  (fabric-gptel-populate-patterns))
 
-(fabric-gptel-yield-prompt)
+;; final usage
+(defun fabric-gptel-send ()
+  (interactive)
+  (let ((gptel--system-message (fabric-gptel-yield-prompt)))
+    (insert "\n\n")
+    (gptel-send)))
+
 
 (provide 'fabric-gptel)
 ;;; fabric-gpt.el ends here

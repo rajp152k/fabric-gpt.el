@@ -2,14 +2,9 @@
 
 [[https://github.com/danielmiessler/fabric][fabric]] crowd sources prompts, [[https://github.com/karthink/gptel][gptel]] is a versatile LLM client for emacs. I wanted fabric prompts to be usable via gptel.
 
-Initial Expectations:
+* Overview
+ - pickup the fabric patterns subdirectory via a no-cone sparse checkout
+ - offer completing reads for patterns that have a system prompt available
+   - a pattern populator filters out directories that do not have a system.md
+ - a completing read functionality then allows to hit gptel-send with the selected pattern, without altering your existing pattern
 
- - pass context via buffers, selections, groups of files, etc
- - pickup prompts via a helm like search
-
-
-* Thoughts
-
- - can pickup the patterns directory from fabric into a local cache with timely checks for updates
-   - https://askubuntu.com/questions/460885/how-to-clone-only-some-directories-from-a-git-repository
-   - https://stackoverflow.com/questions/600079/how-do-i-clone-a-subdirectory-only-of-a-git-repository
