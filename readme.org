@@ -21,7 +21,7 @@ In your config.el, after your gptel config:
 (use-package! fabric-gpt.el
   :after gptel
   :config
-  (fabric-gpt.el-bootstrap))
+  (fabric-gpt.el-sync-patterns))
 #+end_src
 
 * Usage
