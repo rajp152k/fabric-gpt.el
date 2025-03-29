@@ -72,7 +72,7 @@
 (defun fabric-gpt.el-sync-patterns ()
   "sparse pull patterns and populate cache"
   (interactive)
-  (fabric-gpt.el-sparse-checkout-subdir fabric-gpt.el--remote-url fabric-gpt.el--patterns-subdirectory "main")
+  (fabric-gpt.el-sparse-checkout-subdir fabric-gpt.el--remote-url fabric-gpt.el--patterns-subdirectory "master")
   (fabric-gpt.el-populate-patterns))
 
 (defun fabric-gpt.el-send ()
