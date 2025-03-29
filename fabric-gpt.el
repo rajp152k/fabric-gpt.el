@@ -12,6 +12,7 @@
 ;;
 ;; This file is not part of GNU Emacs.
 
+(defvar fabric-gpt.el-root "")
 (defvar fabric-gpt.el--remote-url  "https://github.com/danielmiessler/fabric")
 (defvar fabric-gpt.el--patterns-subdirectory "/patterns")
 (defvar fabric-gpt.el--patterns-path "fabric/patterns")
@@ -19,17 +20,17 @@
 
 (defun fabric-gpt.el-sparse-checkout-subdir (repo-url path branch)
   "sparse pull fabric patterns"
-  (let* (
-         (repo-name (file-name-nondirectory (file-name-sans-extension repo-url)))
-         (repo-exists (file-directory-p repo-name)))
+  (let* ((repo-name (file-name-nondirectory (file-name-sans-extension repo-url)))
+         (repo-pos (concat (fabric-gpt.el-root repo-name)))
+         (repo-exists (file-directory-p repo-pos)))
     (if (not repo-exists)
         (progn
           (message "creating directory")
-          (make-directory repo-name t))
+          (make-directory repo-pos t))
       (message "repo already exists"))
     (let ((reporter (make-progress-reporter "sparse pulling patterns " 0 4)))
       (with-temp-buffer
-        (cd repo-name)
+        (cd repo-pos)
         (unless repo-exists
           (progress-reporter-update reporter 0 "| cloning repo")
           (unless (zerop (call-process "git" nil t nil "clone" "--no-checkout" repo-url "."))
@@ -52,17 +53,21 @@
 
 (defun fabric-gpt.el-populate-patterns ()
   "filter out invalid directories"
-  (setq fabric-gpt.el--patterns (cl-remove-if-not
-                                (lambda (pattern)
-                                  (f-exists-p (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern)))
-                                (directory-files fabric-gpt.el--patterns-path nil "^[^.]" t))))
+  (with-temp-buffer
+    (cd fabric-gpt.el-root)
+    (setq fabric-gpt.el--patterns (cl-remove-if-not
+                                   (lambda (pattern)
+                                     (f-exists-p (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern)))
+                                   (directory-files fabric-gpt.el--patterns-path nil "^[^.]" t)))))
 
 
 (defun fabric-gpt.el-yield-prompt ()
   "completing read fabric patterns"
   (let ((pattern (completing-read "fabric-patterns: " fabric-gpt.el--patterns)))
-    (with-temp-buffer (insert-file-contents (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern))
-                      (buffer-string))))
+    (with-temp-buffer
+      (cd fabric-gpt.el-root)
+      (insert-file-contents (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern))
+      (buffer-string))))
 
 (defun fabric-gpt.el-sync-patterns ()
   "sparse pull patterns and populate cache"

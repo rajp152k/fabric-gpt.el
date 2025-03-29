@@ -21,6 +21,7 @@ In your config.el, after your gptel config:
 (use-package! fabric-gpt.el
   :after gptel
   :config
+  (setq fabric-gpt.el-root "<root dir to cache fabric patterns>")
   (fabric-gpt.el-sync-patterns))
 #+end_src
 
@@ -37,7 +38,7 @@ Upon invocation, a completing read will ask for the desired pattern (with all th
 
 I bind =(fabric-gpt.el-sync-patterns)= to "leader i g f s" to fetch any new patterns from the fabric upstream
 
-These are pulled into your ".config/doom"
+These are pulled into your =<fabric-gpt.el-root>/fabric=
 
 * Close Future
  - better documentation
