@@ -21,7 +21,7 @@
 (defun fabric-gpt.el-sparse-checkout-subdir (repo-url path branch)
   "sparse pull fabric patterns"
   (let* ((repo-name (file-name-nondirectory (file-name-sans-extension repo-url)))
-         (repo-pos (concat (fabric-gpt.el-root repo-name)))
+         (repo-pos (concat fabric-gpt.el-root repo-name))
          (repo-exists (file-directory-p repo-pos)))
     (if (not repo-exists)
         (progn
