@@ -54,19 +54,17 @@
 (defun fabric-gpt.el-populate-patterns ()
   "filter out invalid directories"
   (with-temp-buffer
-    (cd fabric-gpt.el-root)
     (setq fabric-gpt.el--patterns (cl-remove-if-not
                                    (lambda (pattern)
-                                     (f-exists-p (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern)))
-                                   (directory-files fabric-gpt.el--patterns-path nil "^[^.]" t)))))
+                                     (f-exists-p (format "%s%s/%s/system.md" fabric-gpt.el-root fabric-gpt.el--patterns-path pattern)))
+                                   (directory-files (concat fabric-gpt.el-root fabric-gpt.el--patterns-path) nil "^[^.]" t)))))
 
 
 (defun fabric-gpt.el-yield-prompt ()
   "completing read fabric patterns"
   (let ((pattern (completing-read "fabric-patterns: " fabric-gpt.el--patterns)))
     (with-temp-buffer
-      (cd fabric-gpt.el-root)
-      (insert-file-contents (format "%s/%s/system.md" fabric-gpt.el--patterns-path pattern))
+      (insert-file-contents (format "%s%s/%s/system.md" fabric-gpt.el-root fabric-gpt.el--patterns-path pattern))
       (buffer-string))))
 
 (defun fabric-gpt.el-sync-patterns ()
