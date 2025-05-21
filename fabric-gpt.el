@@ -25,9 +25,9 @@
          (repo-exists (file-directory-p repo-pos)))
     (if (not repo-exists)
         (progn
-          (message "creating directory")
+          (message "creating directory %s" repo-pos)
           (make-directory repo-pos t))
-      (message "repo already exists"))
+      (message "repo already exists at %s" repo-pos))
     (let ((reporter (make-progress-reporter "sparse pulling patterns " 0 4)))
       (with-temp-buffer
         (cd repo-pos)
@@ -45,8 +45,12 @@
             (error "Failed to set sparse checkout for %s" path))
           (progress-reporter-update reporter 3 "| main pull"))
 
-        (unless (zerop (call-process "git" nil t nil "checkout" branch))
-          (error "Failed to checkout branch %s" branch))
+        (let ((checkout-status (call-process "git" nil t nil "checkout" branch)))
+          (unless (zerop checkout-status)
+            (if repo-exists
+                (warn "Failed to checkout branch %s in %s. Patterns might be outdated." branch repo-pos)
+              (error "Failed to checkout branch %s in %s" branch repo-pos)))) ;; Added repo-pos to error
+
         (progress-reporter-update reporter 4)
         (message "Sparse pulled patterns for %s on branch %s" repo-name branch)))))
 
@@ -54,10 +58,13 @@
 (defun fabric-gpt.el-populate-patterns ()
   "filter out invalid directories"
   (with-temp-buffer
-    (setq fabric-gpt.el--patterns (cl-remove-if-not
-                                   (lambda (pattern)
-                                     (f-exists-p (format "%s%s/%s/system.md" fabric-gpt.el-root fabric-gpt.el--patterns-path pattern)))
-                                   (directory-files (concat fabric-gpt.el-root fabric-gpt.el--patterns-path) nil "^[^.]" t)))))
+    (let ((patterns-dir (concat fabric-gpt.el-root fabric-gpt.el--patterns-path)))
+      (unless (file-directory-p patterns-dir)
+        (error "Patterns directory not found: %s. Please run fabric-gpt.el-sync-patterns first." patterns-dir))
+      (setq fabric-gpt.el--patterns (cl-remove-if-not
+                                     (lambda (pattern)
+                                       (f-exists-p (format "%s/%s/system.md" patterns-dir pattern))) ;; Use patterns-dir variable
+                                     (directory-files patterns-dir nil "^[^.]" t)))))) ;; Use patterns-dir variable
 
 
 (defun fabric-gpt.el-yield-prompt ()
