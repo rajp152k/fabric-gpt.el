@@ -1,14 +1,25 @@
-#+title: Fabric Prompts for gptel
+#+title: fabric-gpt.el
 
-[[https://github.com/danielmiessler/fabric][fabric]] crowd sources prompts, [[https://github.com/karthink/gptel][gptel]] is a versatile LLM client for emacs. I wanted fabric prompts to be usable via gptel.
+[[https://img.shields.io/github/license/rajp152k/fabric-gpt.el][License]]
+[[https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat][Contributions Welcome]]
 
-* Overview
- - pickup the fabric patterns subdirectory via a no-cone sparse checkout
- - filter patterns that have a system prompt available based on a "system.md exists" predicate
- - a completing read then allows to hit gptel-send with the selected pattern, without altering your existing custom gptel-message
+* fabric-gpt.el: Integrate Fabric Prompts with Gptel
+
+Seamlessly access and utilize the community-driven prompts from the [[https://github.com/danielmiessler/fabric][Fabric]] project directly within Emacs using [[https://github.com/karthink/gptel][Gptel]]. Enhance your LLM interactions with a rich library of curated system prompts.
+
+* Features
+
+-   **Sparse Checkout:** Efficiently fetches only the necessary `patterns` subdirectory from the Fabric repository using Git sparse checkout.
+-   **Pattern Filtering:** Automatically identifies and lists only patterns that have a valid `system.md` file.
+-   **Completing Read Integration:** Select patterns easily using Emacs' built-in completion (like Vertico, Ivy, Helm, etc.).
+-   **Seamless Gptel Integration:** Applies the selected Fabric system prompt to your current Gptel conversation without modifying your default `gptel-system-message`.
+-   **Easy Syncing:** Provides a command to quickly update your local pattern cache from the Fabric upstream.
 
 * Installation
-** Doom Emacs
+
+While installation via MELPA is the recommended method (once available), you can also install manually.
+
+*** Doom Emacs
 
 In your packages.el, after your gptel fetch:
 #+begin_src elisp
@@ -21,29 +32,73 @@ In your config.el, after your gptel config:
 (use-package! fabric-gpt.el
   :after gptel
   :config
-  (setq fabric-gpt.el-root "<root dir to cache fabric patterns>")
+  ;; Set the root directory where fabric patterns will be cached.
+  ;; This should be outside your Emacs configuration directory.
+  (setq fabric-gpt.el-root "~/.emacs.d/.cache/fabric-gpt/") ;; Example path
   (fabric-gpt.el-sync-patterns))
 #+end_src
 
+*** Manual Installation
+
+1. Clone the repository:
+   #+begin_src shell
+   git clone https://github.com/rajp152k/fabric-gpt.el.git ~/.emacs.d/site-lisp/fabric-gpt.el
+   #+end_src
+   (Replace `~/.emacs.d/site-lisp/` with your preferred location)
+2. Add the directory to your `load-path` and require the package in your Emacs config:
+   #+begin_src elisp
+   (add-to-list 'load-path "~/.emacs.d/site-lisp/fabric-gpt.el") ;; Adjust path
+   (require 'fabric-gpt.el)
+
+   ;; Configure the root directory for patterns
+   (setq fabric-gpt.el-root "~/.emacs.d/.cache/fabric-gpt/") ;; Example path
+
+   ;; Sync patterns on startup (optional, but recommended)
+   (fabric-gpt.el-sync-patterns)
+   #+end_src
+
 * Usage
-** fabric-gpt.el-send
 
-This is the primary exposure for utilizing fabric patterns.
+*** Using a Fabric Pattern (`fabric-gpt.el-send`)
 
-I would recommend you bind =(fabric-gptel-send)= to something handy, I use "leader i g f f" as it is mnemonically aligned with what gptel exposes via "leader i g [hsm]"
+This is the primary command for applying a Fabric pattern to your Gptel interaction.
 
-Upon invocation, a completing read will ask for the desired pattern (with all the bells and whistles of your favourite completion engine (I'm using vertico))
+1.  Invoke `M-x fabric-gpt.el-send` (or your bound keybinding).
+2.  A completing read prompt will appear, listing available Fabric patterns.
+3.  Select the desired pattern.
+4.  The system prompt from the selected pattern's `system.md` file will be temporarily applied to the *next* Gptel request sent from the current buffer.
+5.  Your existing buffer content (before the cursor) will be sent as the user message, preceded by the selected system prompt.
 
-** Syncing patterns
+I would recommend you bind =(fabric-gpt.el-send)= to something handy, I use "leader i g f f" as it is mnemonically aligned with what gptel exposes via "leader i g [hsm]".
 
-I bind =(fabric-gpt.el-sync-patterns)= to "leader i g f s" to fetch any new patterns from the fabric upstream
+[[file:path/to/your/usage_screenshot_or_gif.gif]] ;; <-- Add a path to a screenshot or GIF here
 
-These are pulled into your =<fabric-gpt.el-root>/fabric=
+*** Syncing Patterns (`fabric-gpt.el-sync-patterns`)
 
-* Close Future
- - better documentation
- - youtube tutorial
- - testing and polishing the edges
+This command fetches the latest patterns from the upstream Fabric repository.
+
+Invoke `M-x fabric-gpt.el-sync-patterns` (or your bound keybinding). This will:
+1.  Clone or update the Fabric repository in the directory specified by `fabric-gpt.el-root`.
+2.  Perform a sparse checkout to only retrieve the `patterns` subdirectory.
+3.  Populate the list of available patterns by checking for `system.md` files.
+
+I bind =(fabric-gpt.el-sync-patterns)= to "leader i g f s" to fetch any new patterns from the fabric upstream.
+
+These are pulled into your =<fabric-gpt.el-root>/fabric= directory.
+
+* Configuration
+
+-   =fabric-gpt.el-root=: **Required.** A string specifying the root directory where the Fabric repository will be cloned and patterns cached. Make sure this directory exists and is writable by Emacs.
+    #+begin_src elisp
+    (setq fabric-gpt.el-root "~/.emacs.d/.cache/fabric-gpt/") ;; Example
+    #+end_src
+
+* Community
+ - https://thebitmage.com/post/fabric-gpt.el/
 * Contributing
- - suggestions, ideas, bug reports, PRs welcome
- - I do need to refine this a lot
+
+Suggestions, ideas, bug reports, and PRs are welcome! I'm still refining this package and appreciate any feedback.
+
+* License
+
+This project is licensed under the [[file:LICENSE][GNU General Public License Version 3]].
